@@ -9,8 +9,9 @@ import {
   WidgetType,
 } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
+import { syntaxTree } from "@codemirror/language";
 
-import createPill from "./pill";
+import { createPill } from "./pill";
 
 const PILL_REGEX = /\[\(([^)=\]]+)(?:=([^\]]+))?\)\]/g;
 
@@ -68,6 +69,25 @@ const pillLivePreviewExtension = ViewPlugin.fromClass(
       // Only run in Live Preview, don’t mess with Source mode
       if (!livePreview) return Decoration.none;
 
+      const tree = syntaxTree(state);
+
+      // Check if the position is inside a code block
+      function inCode(pos: number): boolean {
+        let node = tree.resolve(pos, -1);
+
+        while (node) {
+          const name = node.name;
+
+          if (name === "hmd-codeblock" || name === "inline-code") {
+            return true;
+          }
+
+          node = node.parent;
+        }
+
+        return false;
+      }
+
       const builder = new RangeSetBuilder<Decoration>();
 
       // Consider all selection ranges (multi-cursor safety)
@@ -86,8 +106,11 @@ const pillLivePreviewExtension = ViewPlugin.fromClass(
           const start = from + match.index;
           const end = start + full.length;
 
+          // Don't decorate pills inside code blocks
+          if (inCode(start)) continue;
+
           const overlapsSelection = selRanges.some(
-            (r) => r.from < end && r.to > start,
+            (r) => r.from < end && r.to >= start,
           );
           if (overlapsSelection) {
             // Cursor is inside [(...)] → show raw markdown

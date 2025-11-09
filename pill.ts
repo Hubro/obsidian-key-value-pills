@@ -1,4 +1,4 @@
-export default function createPill(
+export function createPill(
   index: number,
   key: string,
   value: string | null,
@@ -25,4 +25,27 @@ export default function createPill(
   pill.appendChild(valueSpan);
 
   return pill;
+}
+
+export function scanPills(text: string): [number, number][] {
+  const pills: [number, number][] = [];
+
+  let cursor = 0;
+
+  while (true) {
+    if (cursor >= text.length) break;
+
+    const pillStart = text.indexOf("[(", cursor);
+    if (pillStart === -1) break;
+
+    cursor = pillStart;
+
+    const pillEnd = text.indexOf(")]", cursor);
+    if (pillEnd === -1) break;
+    cursor = pillEnd + 1;
+
+    pills.push([pillStart, pillEnd + 1]);
+  }
+
+  return pills;
 }

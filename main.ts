@@ -1,7 +1,7 @@
 import { MarkdownPostProcessorContext, Plugin } from "obsidian";
 
 import pillLivePreviewExtension from "./editor-widget";
-import createPill from "./pill";
+import { createPill, scanPills } from "./pill";
 
 export default class KeyValuePillPlugin extends Plugin {
   async onload() {
@@ -9,8 +9,6 @@ export default class KeyValuePillPlugin extends Plugin {
 
     this.registerMarkdownPostProcessor(
       (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-        console.log("MARKDOWN POST PROCESSOR EXECUTING!!!");
-
         const blocks = el.querySelectorAll("p, li");
         for (const block of Array.from(blocks)) {
           this.processBlock(block as HTMLElement);
@@ -22,40 +20,41 @@ export default class KeyValuePillPlugin extends Plugin {
   }
 
   processBlock(block: HTMLElement) {
-    const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
-    let pillIndex = 0;
+    const html = block.innerHTML;
+    let pillStart: number,
+      pillEnd: number,
+      pillIndex = 1,
+      cursor = 0,
+      newHTML = "";
 
-    while (walker.nextNode()) {
-      const node = walker.currentNode;
-      const text = node.nodeValue || "";
+    const pillPositions = scanPills(html);
+    console.debug("Scanned pill positions:", pillPositions);
 
-      const pillRegex = /\[\(([^)=\]]+)(?:=([^\]]+))?\)\]/g;
-      let match: RegExpExecArray | null;
-      let cursor = 0;
-      const frag = document.createDocumentFragment();
+    for ([pillStart, pillEnd] of pillPositions) {
+      console.debug("Processing position", [pillStart, pillEnd]);
 
-      while ((match = pillRegex.exec(text)) !== null) {
-        const [fullMatch, key, value] = match;
+      let key = null,
+        value = html.substring(pillStart + 2, pillEnd - 1);
 
-        const before = text.slice(cursor, match.index);
-        if (before) frag.appendChild(document.createTextNode(before));
-
-        const pill = createPill(pillIndex, key, value);
-        pillIndex += 1;
-
-        frag.appendChild(pill);
-
-        cursor = match.index + fullMatch.length;
+      const eq = value.indexOf("=");
+      if (eq !== -1) {
+        key = value.substring(0, eq).trim();
+        value = value.substring(eq + 1).trim();
       }
 
-      // No matches
-      if (cursor === 0) continue;
+      console.debug(key, "=", value);
 
-      const tail = text.slice(cursor);
-      if (tail) frag.appendChild(document.createTextNode(tail)); // frag.appendText ?
+      if (pillStart > cursor) newHTML += html.substring(cursor, pillStart);
 
-      node.parentNode.replaceChild(frag, node);
+      newHTML += createPill(pillIndex, key, value).outerHTML;
+      pillIndex += 1;
+
+      cursor = pillEnd + 1;
     }
+
+    if (cursor < html.length - 1) newHTML += html.substring(cursor);
+
+    block.innerHTML = newHTML;
   }
 
   onunload() {

@@ -6,5 +6,8 @@
     "lit": "^3.3.1",
     "obsidian": "^1.8.7",
     "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@codemirror/language": "^6.11.3"
   }
 }

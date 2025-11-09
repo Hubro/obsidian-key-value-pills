@@ -8,6 +8,7 @@ build:
         --format=cjs \
         --external:obsidian \
         --external:codemirror \
+        --external:@codemirror/language \
         --external:@codemirror/state \
         --external:@codemirror/view \
         --external:electron \
