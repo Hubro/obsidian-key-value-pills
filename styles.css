@@ -1,0 +1,55 @@
+
+/* body.theme-dark */
+/* body.theme-light */
+/* .markdown-source-view.is-live.preview */
+/* .markdown-reading-view */
+
+.pill {
+    display: inline;
+    font-weight: bold;
+    font-family: Roboto, Noto, sans-serif;
+    font-size: 0.9rem;
+    vertical-align: middle;
+    color: #111;
+    white-space: nowrap;
+}
+
+.pill > .key {
+    padding: 0px 5px;
+    background-color: #abcdef;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.pill > .value {
+    padding: 0px 5px;
+    background-color: #bcdeff;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.pill.no-key > .value {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+/*
+.pill-1 {
+    color: #abcdef;
+}
+
+.pill-2 {
+    color: #ff0000;
+}
+
+.pill-3 {
+    color: #00ff00;
+}
+
+.pill-4 {
+    color: #0000ff;
+}
+
+.pill-5 {
+}
+*/

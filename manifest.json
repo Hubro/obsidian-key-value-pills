@@ -1,0 +1,9 @@
+{
+  "id": "key-value-pill",
+  "name": "Key-value pill",
+  "version": "0.0.0",
+  "minAppVersion": "1.9.0",
+  "author": "Tomas Sandven",
+  "description": "Pretty, inline key-value pills",
+  "isDesktopOnly": false
+}

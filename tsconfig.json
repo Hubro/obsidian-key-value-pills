@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "module": "CommonJS",
+    "target": "ES6",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "lib": ["ES6", "DOM"],
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false
+  },
+  "include": ["main.ts"]
+}
