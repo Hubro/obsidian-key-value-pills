@@ -41,7 +41,7 @@ export default class KeyValuePillPlugin extends Plugin {
 
       if (pillStart > cursor) newHTML += html.substring(cursor, pillStart);
 
-      newHTML += createPill(pillIndex, key, value).outerHTML;
+      newHTML += createPill(pillIndex, key, value).outerHTML.trim();
       pillIndex += 1;
 
       cursor = pillEnd + 1;

@@ -2,8 +2,8 @@ export function createPill(
   index: number,
   key: string,
   value: string | null,
-): HTMLDivElement {
-  const pill = document.createElement("div");
+): HTMLSpanElement {
+  const pill = document.createElement("span");
   pill.addClasses(["pill", `pill-${index}`]);
 
   if (!value) {
