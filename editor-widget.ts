@@ -93,38 +93,45 @@ const pillLivePreviewExtension = ViewPlugin.fromClass(
       // Consider all selection ranges (multi-cursor safety)
       const selRanges = state.selection.ranges;
 
-      let pillIndex = 0;
-
       for (const { from, to } of view.visibleRanges) {
         const text = state.doc.sliceString(from, to);
         PILL_REGEX.lastIndex = 0;
 
-        let match: RegExpExecArray | null;
-        while ((match = PILL_REGEX.exec(text)) !== null) {
-          const [full, key, value] = match;
+        const lines = text.split("\n");
+        let cursor = 0;
 
-          const start = from + match.index;
-          const end = start + full.length;
+        for (let line of lines) {
+          let match: RegExpExecArray | null;
+          let pillIndex = 0;
 
-          // Don't decorate pills inside code blocks
-          if (inCode(start)) continue;
+          while ((match = PILL_REGEX.exec(line)) !== null) {
+            const [full, key, value] = match;
 
-          const overlapsSelection = selRanges.some(
-            (r) => r.from < end && r.to >= start,
-          );
-          if (overlapsSelection) {
-            // Cursor is inside [(...)] → show raw markdown
-            continue;
+            const start = from + cursor + match.index;
+            const end = start + full.length;
+
+            // Don't decorate pills inside code blocks
+            if (inCode(start)) continue;
+
+            const overlapsSelection = selRanges.some(
+              (r) => r.from < end && r.to >= start,
+            );
+            if (overlapsSelection) {
+              // Cursor is inside [(...)] → show raw markdown
+              continue;
+            }
+
+            pillIndex += 1;
+
+            const deco = Decoration.replace({
+              widget: new PillWidget(key, value, pillIndex, start),
+              inclusive: false,
+            });
+
+            builder.add(start, end, deco);
           }
 
-          pillIndex += 1;
-
-          const deco = Decoration.replace({
-            widget: new PillWidget(key, value, pillIndex, start),
-            inclusive: false,
-          });
-
-          builder.add(start, end, deco);
+          cursor += line.length + 1; // Line endings were stripped by .split()
         }
       }
 
