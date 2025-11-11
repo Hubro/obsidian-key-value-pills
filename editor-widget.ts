@@ -105,6 +105,8 @@ const pillLivePreviewExtension = ViewPlugin.fromClass(
           let pillIndex = 0;
 
           while ((match = PILL_REGEX.exec(line)) !== null) {
+            pillIndex += 1;
+
             const [full, key, value] = match;
 
             const start = from + cursor + match.index;
@@ -120,8 +122,6 @@ const pillLivePreviewExtension = ViewPlugin.fromClass(
               // Cursor is inside [(...)] → show raw markdown
               continue;
             }
-
-            pillIndex += 1;
 
             const deco = Decoration.replace({
               widget: new PillWidget(key, value, pillIndex, start),
