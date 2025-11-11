@@ -28,11 +28,8 @@ export default class KeyValuePillPlugin extends Plugin {
       newHTML = "";
 
     const pillPositions = scanPills(html);
-    console.debug("Scanned pill positions:", pillPositions);
 
     for ([pillStart, pillEnd] of pillPositions) {
-      console.debug("Processing position", [pillStart, pillEnd]);
-
       let key = null,
         value = html.substring(pillStart + 2, pillEnd - 1);
 
@@ -41,8 +38,6 @@ export default class KeyValuePillPlugin extends Plugin {
         key = value.substring(0, eq).trim();
         value = value.substring(eq + 1).trim();
       }
-
-      console.debug(key, "=", value);
 
       if (pillStart > cursor) newHTML += html.substring(cursor, pillStart);
 
