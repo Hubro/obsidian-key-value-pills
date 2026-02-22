@@ -67,7 +67,7 @@ const pillLivePreviewExtension = ViewPlugin.fromClass(
     }
 
     update(update: ViewUpdate) {
-      if (update.docChanged || update.viewportChanged || update.selectionSet) {
+      if (update.docChanged || update.selectionSet) {
         this.decorations = this.buildDecorations(update.view);
       }
     }
@@ -99,50 +99,45 @@ const pillLivePreviewExtension = ViewPlugin.fromClass(
       }
 
       const builder = new RangeSetBuilder<Decoration>();
-
-      // Consider all selection ranges (multi-cursor safety)
       const selRanges = state.selection.ranges;
+      const text = state.doc.sliceString(0);
+      const lines = text.split("\n");
 
-      for (const { from, to } of view.visibleRanges) {
-        const text = state.doc.sliceString(from, to);
-        PILL_REGEX.lastIndex = 0;
+      let cursor = 0;
+      PILL_REGEX.lastIndex = 0;
 
-        const lines = text.split("\n");
-        let cursor = 0;
+      for (let line of lines) {
+        let match: RegExpExecArray | null;
+        let pillIndex = 0;
 
-        for (let line of lines) {
-          let match: RegExpExecArray | null;
-          let pillIndex = 0;
+        while ((match = PILL_REGEX.exec(line)) !== null) {
+          pillIndex += 1;
 
-          while ((match = PILL_REGEX.exec(line)) !== null) {
-            pillIndex += 1;
+          const [full, key, value] = match;
 
-            const [full, key, value] = match;
+          const start = cursor + match.index;
+          const end = start + full.length;
 
-            const start = from + cursor + match.index;
-            const end = start + full.length;
+          // Don't decorate pills inside code blocks
+          if (inCode(start)) continue;
 
-            // Don't decorate pills inside code blocks
-            if (inCode(start)) continue;
-
-            const overlapsSelection = selRanges.some(
-              (r) => r.from < end && r.to >= start,
-            );
-            if (overlapsSelection) {
-              // Cursor is inside [(...)] → show raw markdown
-              continue;
-            }
-
-            const deco = Decoration.replace({
-              widget: new PillWidget(key, value, pillIndex, start),
-              inclusive: false,
-            });
-
-            builder.add(start, end, deco);
+          const overlapsSelection = selRanges.some(
+            (r) => r.from < end && r.to >= start,
+          );
+          if (overlapsSelection) {
+            // Cursor is inside [(...)] → show raw markdown
+            continue;
           }
 
-          cursor += line.length + 1; // Line endings were stripped by .split()
+          const deco = Decoration.replace({
+            widget: new PillWidget(key, value, pillIndex, start),
+            inclusive: false,
+          });
+
+          builder.add(start, end, deco);
         }
+
+        cursor += line.length + 1; // Line endings were stripped by .split()
       }
 
       return builder.finish();
