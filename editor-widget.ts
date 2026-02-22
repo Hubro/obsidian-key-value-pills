@@ -25,6 +25,16 @@ class PillWidget extends WidgetType {
     super();
   }
 
+  eq(otherPill: WidgetType): boolean {
+    if (otherPill instanceof PillWidget === false) return false;
+
+    return (
+      this.key == otherPill.key &&
+      this.value == otherPill.value &&
+      this.index == otherPill.index
+    );
+  }
+
   toDOM(view: EditorView): HTMLElement {
     const pill = createPill(this.index, this.key, this.value);
 
