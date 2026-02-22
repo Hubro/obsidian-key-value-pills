@@ -13,7 +13,7 @@ import { syntaxTree } from "@codemirror/language";
 
 import { createPill } from "./pill";
 
-const PILL_REGEX = /\[\(([^)=\]]+)(?:=([^\]]+))?\)\]/g;
+const PILL_REGEX = /\[\(((?:[^=)]|\)(?!\]))+)(?:=((?:[^=)]|\)(?!\]))+))?\)\]/g;
 
 class PillWidget extends WidgetType {
   constructor(
